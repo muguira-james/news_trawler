@@ -1,0 +1,18 @@
+web:
+  build: ./web
+  command: python -u ./web/app.py
+  ports:
+    - "5000:5000"
+  volumes:
+    - .:/todo
+  links:
+    - db
+trawler:
+  build: .
+  command: python -u trawler.py
+  volumes:
+    - .:/src
+  links:
+    - db
+db:
+  image: mongo:3.0.2
