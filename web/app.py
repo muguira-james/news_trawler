@@ -8,13 +8,13 @@ client = MongoClient(
     os.environ['DB_PORT_27017_TCP_ADDR'],
     27017)
 print '{} {}'.format(os.environ['DB_PORT_27017_TCP_ADDR'], '27017')
-db = client.tododb
+db = client.news
 
 
 @app.route('/')
 def todo():
 
-    _items = db.tododb.find()
+    _items = db.news.find()
     items = [item for item in _items]
 
     return render_template('todo.html', items=items)
@@ -24,12 +24,18 @@ def todo():
 def new():
 
     item_doc = {
-        'name': request.form['name'],
-        'description': request.form['description']
+        'title': request.form['title'],
+        'source': request.form['source']
     }
-    db.tododb.insert_one(item_doc)
+    db.news.insert_one(item_doc)
 
     return redirect(url_for('todo'))
+
+@app.route('/clear')
+def clear():
+    db.news.delete_many({})
+    return redirect(url_for('todo'))
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
