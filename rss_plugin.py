@@ -4,6 +4,11 @@ import feedparser
 import json
 import datetime
 
+import os,sys
+from gensim.summarization import summarize
+from gensim.summarization import keywords
+
+
 
 ### a class to tidy up the processing
 class Article(object):
@@ -26,6 +31,8 @@ def rss_worker(url, output_q):
         #
         # do my NLP work here
         #
+        # summ = summarize(text, word_count=100)
+        # keyw = keywords(text, ratio=0.01)
         ### dump it to json
         ar_json = json.loads(json.dumps(ar, default=jdefault))
         # save it in the output_q for later processing
