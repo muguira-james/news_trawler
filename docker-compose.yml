@@ -4,14 +4,14 @@ web:
   ports:
     - "5000:5000"
   volumes:
-    - .:/todo
+    - .:/app
   links:
     - db
 trawler:
   build: .
-  command: python -u trawler.py
+  command: python -u ./trawler.py
   volumes:
-    - .:/src
+    - .:/app
   links:
     - db
 db:

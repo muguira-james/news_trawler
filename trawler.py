@@ -15,7 +15,7 @@ from rss_plugin import rss_worker
 #
 def get_rss_feed_database(fileName):
     # the file is a simple name,link format
-    rss_url_file = open('rss_url_db.json', 'rb')
+    rss_url_file = open('rss_url_db.json', 'r')
     for line in rss_url_file:
         items = line.rstrip().split(',')
         rss_urls[items[0]] = items[1]
@@ -100,7 +100,7 @@ while True:
         p.start()
 
     # after starting all the workers goto sleep for a short while
-    time.sleep(60)
+    time.sleep(2)
 
     # process the queue for potential new stuff
     nitems = out_q.qsize()

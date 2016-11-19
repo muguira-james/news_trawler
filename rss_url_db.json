@@ -8,3 +8,4 @@ reuters_world,http://feeds.reuters.com/Reuters/worldNews,
 fastcompany,http://feeds.feedburner.com/fastcompany/headlines
 CNN_world,http://rss.cnn.com/rss/cnn_world.rss
 BBC_World,http://feeds.bbci.co.uk/news/world/rss.xml?edition=uk
+LA_Times,http://www.latimes.com/world/rss2.0.xml

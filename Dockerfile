@@ -1,5 +1,5 @@
 FROM python:2.7
-ADD . /src
-WORKDIR /src
+ADD ./ /app
+WORKDIR /app
 RUN pip install -r requirements.txt
 CMD ['python', 'trawler.py']
