@@ -9,6 +9,8 @@ Demo of how to use docker-compose in a non-trivial setting.
 
 + rss_plugin.py handles rss feed parsing
 
++ rss_cnn_plugin.py handle the specifics of cnn feeds
+
 + rss_url_db.json is a list of rss sites to parse
 
 + config.conf holds the app configuration info
