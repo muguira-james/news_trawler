@@ -6,8 +6,9 @@ from pymongo import MongoClient
 from multiprocessing import Process, Queue
 import logging
 import json
-from rss_plugin import rss_worker
 
+from rss_plugin import rss_worker
+from rss_cnn_plugin import cnn_worker
 
 # ====================================================
 #
@@ -17,12 +18,14 @@ def get_rss_feed_database(fileName):
     # the file is a simple name,link format
     rss_url_file = open('rss_url_db.json', 'r')
     for line in rss_url_file:
+        # there are 3 items: name of the worker, source, and the url
         items = line.rstrip().split(',')
-        rss_urls[items[0]] = items[1]
+        rss_urls[items[1]] = { 'worker_name': items[0], 'url': items[2] }
 
     for i in rss_urls.iteritems():
-        logging.info('{:30} {}'.format(i[0], i[0]))
-
+        worker_name = i[1]['worker_name']
+        url = i[1]['url']
+        logging.info('{:20} {:12} {}'.format(i[0], worker_name, url))
 #
 # answer the last date/time the rss_url_db was
 #  modified
@@ -94,8 +97,15 @@ while True:
         config['configFile_lastModified'] = get_lastModified(config['config.conf'])
 
     # process the rss db
-    for url in rss_urls.values():
-        p = Process(target=rss_worker, args=(url, out_q))
+    logging.info('creating rss processes')
+    for item in rss_urls.iteritems():
+        #print('worker = {:18} url={}'.format(item[1]['worker_name'], item[1]['url']))
+        if item[1]['worker_name'] == 'cnn_worker':
+            p = Process(target=cnn_worker, args=(item[1]['url'], out_q))
+        # elif item[1]['worker_name'] == 'reuters_worker':
+        #    p = Process(target=reuters_worker, args=(item[1]['url'], out_q))
+        else:
+            p = Process(target=rss_worker, args=(item[1]['url'], out_q))
         procs.append(p)
         p.start()
 

@@ -14,20 +14,22 @@ db = client.news
 @app.route('/')
 def todo():
 
+    count = db.news.find().count()
+    print("total news articles = %d", count)
     _items = db.news.find()
     items = [item for item in _items]
 
-    return render_template('todo.html', items=items)
+    return render_template('todo.html', items=items, tot=count)
 
 
-@app.route('/new', methods=['POST'])
-def new():
+@app.route('/deleteOne', methods=['POST'])
+def deleteOne():
 
     item_doc = {
         'title': request.form['title'],
         'source': request.form['source']
     }
-    db.news.insert_one(item_doc)
+    db.news.delete_one(item_doc)
 
     return redirect(url_for('todo'))
 

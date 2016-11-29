@@ -1,4 +1,4 @@
-# news_trawler
+# news_trawler (PYTHON 2.7 only!)
 long running server to gather news from interesting sources
 
 Demo of how to use docker-compose in a non-trivial setting.
