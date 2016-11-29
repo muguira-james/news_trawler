@@ -15,11 +15,23 @@ Demo of how to use docker-compose in a non-trivial setting.
 
 + config.conf holds the app configuration info
 
-## Docker stuff:
+## DB Stuff:
+
++ createNewsTable.py creates a new postgres table with the right schema
+
++ insertNews.py tests inserting and some other little "study" stuff
+
++ queryNews.py tests query for the number in the DB and a follow on grab of everything
+
+## Docker stuff (does not work on branch hana0):
 
 + Dockerfile is the build file for the trawler app
 
 + docker-compose.yml is the compose build file
+
+The branch hana0 does not use docker.  Simply start trawler (python trawler.py) and 
+start web/app.py from different terminals.  This assumes the postgres DB is up and 
+running as a service in the background.
 
 ### Web
 

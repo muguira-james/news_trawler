@@ -36,9 +36,6 @@ def todo():
         zz['title'] = tt
         zz['source'] = row[0]
         ii.append(zz)
-    #items.append('{ u\"title\": u\"' + tt + '\", u\"source\": u\"' + row[0] + '\"}')
-    aa = json.dumps(ii)
-    print(aa)
     
     return render_template('todo.html', items=ii, tot=count)
 
