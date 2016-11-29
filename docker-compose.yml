@@ -1,12 +1,15 @@
-web:
-  build: ./web
-  command: python -u ./web/app.py
-  ports:
-    - "5000:5000"
-  volumes:
-    - .:/app
-  links:
-    - db
+#web:
+#  build: ./web
+#  command: python -u ./web/app.py
+#  ports:
+#    - "5000:5000"
+#  volumes:
+#    - .:/app
+#  links:
+#    - db
+#  environment:
+#   - POSTGRES_PASSWORD=mysecretpassword
+
 trawler:
   build: .
   command: python -u ./trawler.py
@@ -14,5 +17,10 @@ trawler:
     - .:/app
   links:
     - db
+  environment:
+   - POSTGRES_PASSWORD=mysecretpassword
+   
 db:
-  image: mongo:3.0.2
+  image: postgres
+  environment:
+      - POSTGRES_PASSWORD=mysecretpassword

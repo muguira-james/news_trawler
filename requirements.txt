@@ -3,3 +3,4 @@ feedparser
 pattern
 gensim
 BeautifulSoup4
+psycopg2

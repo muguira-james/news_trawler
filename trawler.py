@@ -1,8 +1,10 @@
 
 # -*- coding: utf-8 -*-
 import time
-import os
-from pymongo import MongoClient
+import os, sys
+import psycopg2
+import psycopg2.extras
+
 from multiprocessing import Process, Queue
 import logging
 import json
@@ -36,19 +38,40 @@ def get_lastModified(fileName):
 # deal with duplicate items
 #
 def handle_dups(js):
-    qst = {}
-    # print 'handle_dups: looking for {}'.format(js['title'].encode('UTF-8', 'replace'))
-    qst['title'] = js['title']
-    # print '{} : {}'.format(db.news.find(qst), db.news.find(qst).count())
-    count = db.news.find(qst).count()
-    if count != 0:
-        return
-    # print 'injecting {}'.format(js['title'].encode('UTF-8', 'replace'))
-    # this is a new item, insert it into the db and log it
-    db.news.insert_one(js)
-    # print js['title'].encode('UTF-8', 'replace')
-    logging.info(js['title'].encode('UTF-8', 'replace'))
-
+    """
+    input is a json object. no output
+    
+    We undo the json,use the title to see if this article in in the news DB.
+    - if it is just return
+    - else save this article to the db (url or source, title, link to article)
+    log this article
+    """
+    # qst is a string rep of the title to check for
+    query = 'select * from newsarticles where title = %(title)s'
+    try:
+        url = js['source']
+        title = js['title'].encode('UTF-8', 'replace')
+        link = js['link']
+        
+        cursor.execute(query, {'title':title})    
+        
+        count = cursor.rowcount
+        #print('{}: title={:30}'.format(count, js['title'].encode('UTF-8', 'replace')))
+        if count != 0:
+            return
+        
+        # this is a new item, insert it into the db and log it
+        query = "insert into newsArticles (url, title, link) values (%s, %s, %s)"
+    
+        cursor.execute(query, (url, title, link)) 
+        
+        connection.commit()
+        print (title)
+        logging.info(title)
+        
+    except psycopg2.DatabaseError as e:
+        print ("insert failed??? Error %s" % e)
+        sys.exit(1)
 # ====================================================
 # ----------------------------------------------------------
 
@@ -64,13 +87,18 @@ config['configFile_lastModified'] = get_lastModified('config.conf')
 
 logging.info('configuration: ' + config['name_version'])
 
-logging.info('Step 1: mongo db connection')
-logging.info('host = {}: {}'.format(os.environ[config['mongoDB_hostConnectString']],
-                              str(config['mongoDB_port'])))
-client = MongoClient(os.environ[config['mongoDB_hostConnectString']],
-                                config['mongoDB_port'])
-db = client.news
+logging.info('Step 1: db connection')
 
+try:
+    connectionString = "dbname=\'" + config['postgres_dbname'] + "\' user=\'" + config['postgres_user_name'] + "\'"
+    connection = psycopg2.connect(connectionString)
+   
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    
+except psycopg2.DatabaseError as e:
+    print ("opening the DB failed??? Error %s" % e)
+    sys.exit(1)
+    
 logging.info('Step 2: fetch the rss url database')
 #
 # GLOBAL variables !!!!!
@@ -91,7 +119,8 @@ while True:
     if get_lastModified(config['rss_url_db']) != config['rss_lastModified']:
         get_rss_feed_database(config['rss_url_db'])
         config['rss_lastModified'] = get_lastModified(config['rss_url_db'])
-
+        
+    # check to see if configuration has changed
     if get_lastModified('config.conf') != config['configFile_lastModified']:
         config = json.loads(open('config.conf', 'r').read())
         config['configFile_lastModified'] = get_lastModified(config['config.conf'])
