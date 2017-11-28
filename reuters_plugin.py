@@ -13,7 +13,8 @@ from gensim.summarization import keywords
 
 from multiprocessing import Process, Queue
 
-
+#
+# simple, but not foolproof json encoder
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (bytes, bytearray)):
@@ -25,7 +26,7 @@ class MyEncoder(json.JSONEncoder):
 ### a class to tidy up the processing
 class Article(object):
     def __init__(self, source, title, link, summ, keyw):
-        # explicitly encode data as unicode
+        # explicitly encode data as ASCII
         self.source = source.encode('UTF-8', 'ignore')
         self.title = title.encode('UTF-8', 'replace')
         self.link = link.encode('UTF-8', 'ignore')
@@ -33,6 +34,8 @@ class Article(object):
         self.keywords = keyw
 
 # -------------------------------------------------------------
+#
+# use gensim to get keywords and summary
 def getArticleKeywordsSummary(posting):
     with urllib.request.urlopen(posting.link) as response:
        html_doc = response.read()
@@ -52,6 +55,8 @@ def getArticleKeywordsSummary(posting):
     keyw = keywords(art)
     return summ,keyw
 # -------------------------------------------------------------
+#
+# get all rss articles from Reuters news and do NLP
 def reuters_worker(url, output_q):
     d = feedparser.parse(url)
     for post in d.entries:

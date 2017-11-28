@@ -9,6 +9,8 @@ import re
 
 import os,sys
 
+#
+# a simple, but not fool proof way to create json
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (bytes, bytearray)):
@@ -20,7 +22,7 @@ class MyEncoder(json.JSONEncoder):
 ### a class to tidy up the processing
 class Article(object):
     def __init__(self, source, title, link, summ, keyw):
-        # explicitly encode data as unicode
+        # explicitly encode data as ASCII
         self.source = source.encode('UTF-8', 'ignore')
         self.title = title.encode('UTF-8', 'replace')
         self.link = link.encode('UTF-8', 'ignore')
@@ -28,6 +30,8 @@ class Article(object):
         self.keywords = keyw
 
 # -------------------------------------------------------------
+#
+# loop - gather all rss data from the URL
 def rss_worker(url, output_q):
     d = feedparser.parse(url)
     for post in d.entries:
@@ -45,6 +49,6 @@ def rss_worker(url, output_q):
         ar_json = json.dumps(sss, cls=MyEncoder)
         # print(ar_json)
         #
-        ### dump it to json
+        ### dump it to json and send back to main loop for storage
         #
         output_q.put(ar_json)

@@ -12,6 +12,10 @@ sample config file
 "logFile": "log.txt",
 "rss_lastModified": 0
 
+This is a long running process to gather news from various sources
+
+For each source, gather the article title, the link to the actual story
+the rss feed url.  Use gensim to get keywords, and summary
 
 """
 
@@ -71,12 +75,15 @@ def handle_dups(js):
 
 # ====================================================
 # ------------------ main ----------------------------------
+
+# parse arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--configuration", required=True,
 	help="path to the config file")
 
 args = vars(ap.parse_args())
 
+# setup logging
 logging.basicConfig(filename='log.log',
                     format='%(asctime)s %(message)s:',
                     level=logging.DEBUG)
@@ -84,6 +91,7 @@ logging.basicConfig(filename='log.log',
 logging.info('Trawler startup:')
 logging.info('Step 0: fetch configuration structure')
 
+# bring in the run-time configuration (from cmd line!!)
 config = json.loads(open(args['configuration'], 'r').read())
 print(config)
 config['configFile_lastModified'] = get_lastModified('config.conf')
@@ -92,6 +100,9 @@ logging.info('configuration: ' + config['name_version'])
 
 logging.info('Step 1: mongo db connection')
 """
+
+This took run-time configuration from environment
+
 logging.info('host = {}: {}'.format(os.environ[config['mongoDB_hostConnectString']],
                               str(config['mongoDB_port'])))
 
@@ -100,6 +111,7 @@ client = MongoClient(os.environ[config['mongoDB_hostConnectString']],
 db = client.news
 """
 
+# set up mongoDB
 logging.info('host = {}: {}'.format(config['mongoDB_hostConnectString'],
                               str(config['mongoDB_port'])))
 
@@ -122,12 +134,15 @@ get_rss_feed_database(config['rss_url_db'])
 logging.info('Getting to work now: running main loop')
 time.sleep(1)
 
+#
+# loop forever
 while True:
     # check to see if the rss db changed
     if get_lastModified(config['rss_url_db']) != config['rss_lastModified']:
         get_rss_feed_database(config['rss_url_db'])
         config['rss_lastModified'] = get_lastModified(config['rss_url_db'])
 
+    # check to see if configuration changed
     if get_lastModified('config.conf') != config['configFile_lastModified']:
         config = json.loads(open('config.conf', 'r').read())
         config['configFile_lastModified'] = get_lastModified(config['config.conf'])
@@ -138,8 +153,6 @@ while True:
         #print('worker = {:18} url={}'.format(item[1]['worker_name'], item[1]['url']))
         if item[1]['worker_name'] == 'rss_reuters_worker':
             p = Process(target=reuters_worker, args=(item[1]['url'], out_q))
-        # elif item[1]['worker_name'] == 'reuters_worker':
-        #    p = Process(target=reuters_worker, args=(item[1]['url'], out_q))
         else:
             p = Process(target=rss_worker, args=(item[1]['url'], out_q))
         procs.append(p)
@@ -149,14 +162,13 @@ while True:
     time.sleep(2)
 
     # process the queue for potential new stuff
-    # nitems = out_q.qsize()
-    # for p in range(nitems):
-    #     js = out_q.get()
-    #     handle_dups(js)
+    #
+    # loop reading new stuff from the queue
     while not out_q.empty():
         js = out_q.get()
         handle_dups(js)
 
+    # wait for all processes to join
     for p in procs:   # wait for all processess to finish
         p.join()
 
