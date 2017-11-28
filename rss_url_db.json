@@ -1,10 +1,10 @@
-rss_worker,reuters_business,http://feeds.reuters.com/reuters/businessNews,
-rss_worker,reuters_environment,http://feeds.reuters.com/reuters/environment,
-rss_worker,reuters_wealth,http://feeds.reuters.com/news/wealth,
-rss_worker,reuters_science,http://feeds.reuters.com/reuters/scienceNews,
-rss_worker,reuters_technology,http://feeds.reuters.com/reuters/technologyNews,
-rss_worker,reuters_domestic,http://feeds.reuters.com/Reuters/domesticNews,
-rss_worker,reuters_world,http://feeds.reuters.com/Reuters/worldNews,
+rss_reuters_worker,reuters_business,http://feeds.reuters.com/reuters/businessNews,
+rss_reuters_worker,reuters_environment,http://feeds.reuters.com/reuters/environment,
+rss_reuters_worker,reuters_wealth,http://feeds.reuters.com/news/wealth,
+rss_reuters_worker,reuters_science,http://feeds.reuters.com/reuters/scienceNews,
+rss_reuters_worker,reuters_technology,http://feeds.reuters.com/reuters/technologyNews,
+rss_reuters_worker,reuters_domestic,http://feeds.reuters.com/Reuters/domesticNews,
+rss_reuters_worker,reuters_world,http://feeds.reuters.com/Reuters/worldNews,
 rss_worker,fastcompany,http://feeds.feedburner.com/fastcompany/headlines
 rss_worker,CNN_world,http://rss.cnn.com/rss/cnn_world.rss
 rss_worker,BBC_World,http://feeds.bbci.co.uk/news/world/rss.xml?edition=uk

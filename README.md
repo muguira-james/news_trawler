@@ -29,3 +29,12 @@ The admin interface for trawler.
 + Dockerfile the build file
 + requirements.txt pulls in required software
 + templates holds the html
+
+install 
+
+virtualenv news_trawler
+cd news_trawler
+source bin/activate
+pip install -r requirements.txt --find-links file:///$PWD/pips
+
+

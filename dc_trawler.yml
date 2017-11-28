@@ -1,0 +1,6 @@
+
+trawler:
+  build: .
+  command: python -u ./trawler.py --configuration ./config.conf
+  volumes:
+    - .:/app:Z

@@ -1,0 +1,6 @@
+.DS_Store
+news_trawler/
+pips/
+__pycache__/
+fit.sh
+log.log

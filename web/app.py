@@ -1,4 +1,6 @@
 import os
+import json
+import pprint
 from flask import Flask, redirect, url_for, request, render_template
 from pymongo import MongoClient
 
@@ -14,13 +16,19 @@ db = client.news
 @app.route('/')
 def todo():
 
+    # count = db.news.find().count()
+    # print("total news articles = %d", count)
+    # _items = db.news.find()
+    # items = [item for item in _items]
+    #
+    # return render_template('todo.html', items=items, tot=count)
     count = db.news.find().count()
     print("total news articles = %d", count)
     _items = db.news.find()
     items = [item for item in _items]
 
-    return render_template('todo.html', items=items, tot=count)
-
+    
+    return ret
 
 @app.route('/deleteOne', methods=['POST'])
 def deleteOne():
@@ -40,4 +48,4 @@ def clear():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8008, debug=True)

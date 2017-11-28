@@ -1,5 +1,5 @@
-FROM python:2.7
+FROM python:3
 ADD ./ /app
 WORKDIR /app
-RUN pip install --no-index --find-links=./pips -r requirements.txt
-CMD ['python', 'trawler.py']
+RUN pip install -r requirements.txt --find-links='./pips'
+CMD [ "python", "trawler.py", "--configuration", "./config.conf" ]

@@ -2,7 +2,7 @@ web:
   build: ./web
   command: python -u ./web/app.py
   ports:
-    - "5000:5000"
+    - "8008:8008"
   volumes:
     - .:/app
   links:
@@ -11,7 +11,7 @@ trawler:
   build: .
   command: python -u ./trawler.py --configuration ./config.conf
   volumes:
-    - .:/app
+    - .:/app:Z
   links:
     - db
 db:

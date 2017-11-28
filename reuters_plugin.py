@@ -8,6 +8,11 @@ import datetime
 import re
 
 import os,sys
+from gensim.summarization import summarize
+from gensim.summarization import keywords
+
+from multiprocessing import Process, Queue
+
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -28,15 +33,33 @@ class Article(object):
         self.keywords = keyw
 
 # -------------------------------------------------------------
-def rss_worker(url, output_q):
+def getArticleKeywordsSummary(posting):
+    with urllib.request.urlopen(posting.link) as response:
+       html_doc = response.read()
+
+    soup = BeautifulSoup(html_doc, 'html.parser')
+    # print(soup.get_text())
+
+    # kill all script and style elements
+    for script in soup(["script", "style"]):
+        script.extract()    # rip it out
+
+    # now get to the start of the story
+    #
+    art = soup.find(class_=re.compile("^ArticleBody_body")).get_text()
+
+    summ = summarize(art, word_count=200)
+    keyw = keywords(art)
+    return summ,keyw
+# -------------------------------------------------------------
+def reuters_worker(url, output_q):
     d = feedparser.parse(url)
     for post in d.entries:
         print(post.title)
         #
         # I would do my NLP work here
         #
-        summ = "pass"
-        keyw = "pass"
+        summ,keyw = getArticleKeywordsSummary(post)
         #
         # Article takes: source, title, and link
         ar = Article(url, post.title, post.link, summ, keyw)

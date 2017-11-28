@@ -1,5 +1,7 @@
 pymongo
+urllib3
 feedparser
-pattern
-gensim
+spacy
 BeautifulSoup4
+gensim
+spacy

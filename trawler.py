@@ -1,14 +1,34 @@
 
 # -*- coding: utf-8 -*-
+"""
+sample config file
+
+"name_version": "news trawler, v1",
+"mongoDB_hostConnectString": "DB_PORT_27017_TCP_ADDR",
+"mongoDB_port": 27017,
+"rss_url_db": "rss_url_db.json",
+"trawler_sleep_time": 10,
+"loggingLevel": "info",
+"logFile": "log.txt",
+"rss_lastModified": 0
+
+
+"""
+
 import time
 import os
 from pymongo import MongoClient
+
 from multiprocessing import Process, Queue
 import logging
 import json
 
+import argparse
 from rss_plugin import rss_worker
-from rss_cnn_plugin import cnn_worker
+# from rss_cnn_plugin import cnn_worker
+
+from reuters_plugin import reuters_worker
+import requests
 
 # ====================================================
 #
@@ -22,7 +42,7 @@ def get_rss_feed_database(fileName):
         items = line.rstrip().split(',')
         rss_urls[items[1]] = { 'worker_name': items[0], 'url': items[2] }
 
-    for i in rss_urls.iteritems():
+    for i in rss_urls.items():
         worker_name = i[1]['worker_name']
         url = i[1]['url']
         logging.info('{:20} {:12} {}'.format(i[0], worker_name, url))
@@ -50,7 +70,12 @@ def handle_dups(js):
     logging.info(js['title'].encode('UTF-8', 'replace'))
 
 # ====================================================
-# ----------------------------------------------------------
+# ------------------ main ----------------------------------
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--configuration", required=True,
+	help="path to the config file")
+
+args = vars(ap.parse_args())
 
 logging.basicConfig(filename='log.log',
                     format='%(asctime)s %(message)s:',
@@ -59,15 +84,26 @@ logging.basicConfig(filename='log.log',
 logging.info('Trawler startup:')
 logging.info('Step 0: fetch configuration structure')
 
-config = json.loads(open('config.conf', 'r').read())
+config = json.loads(open(args['configuration'], 'r').read())
+print(config)
 config['configFile_lastModified'] = get_lastModified('config.conf')
 
 logging.info('configuration: ' + config['name_version'])
 
 logging.info('Step 1: mongo db connection')
+"""
 logging.info('host = {}: {}'.format(os.environ[config['mongoDB_hostConnectString']],
                               str(config['mongoDB_port'])))
+
 client = MongoClient(os.environ[config['mongoDB_hostConnectString']],
+                                config['mongoDB_port'])
+db = client.news
+"""
+
+logging.info('host = {}: {}'.format(config['mongoDB_hostConnectString'],
+                              str(config['mongoDB_port'])))
+
+client = MongoClient(config['mongoDB_hostConnectString'],
                                 config['mongoDB_port'])
 db = client.news
 
@@ -98,10 +134,10 @@ while True:
 
     # process the rss db
     logging.info('creating rss processes')
-    for item in rss_urls.iteritems():
+    for item in rss_urls.items():
         #print('worker = {:18} url={}'.format(item[1]['worker_name'], item[1]['url']))
-        if item[1]['worker_name'] == 'cnn_worker':
-            p = Process(target=cnn_worker, args=(item[1]['url'], out_q))
+        if item[1]['worker_name'] == 'rss_reuters_worker':
+            p = Process(target=reuters_worker, args=(item[1]['url'], out_q))
         # elif item[1]['worker_name'] == 'reuters_worker':
         #    p = Process(target=reuters_worker, args=(item[1]['url'], out_q))
         else:
@@ -113,8 +149,11 @@ while True:
     time.sleep(2)
 
     # process the queue for potential new stuff
-    nitems = out_q.qsize()
-    for p in range(nitems):
+    # nitems = out_q.qsize()
+    # for p in range(nitems):
+    #     js = out_q.get()
+    #     handle_dups(js)
+    while not out_q.empty():
         js = out_q.get()
         handle_dups(js)
 
