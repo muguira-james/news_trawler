@@ -32,12 +32,18 @@ The admin interface for trawler.
 
 install 
 
-virtualenv news_trawler
+Start docker daemon
+
+Start mongodb
 
 cd news_trawler
+
+virtualenv news_trawler
 
 source bin/activate
 
 pip install -r requirements.txt --find-links file:///$PWD/pips
+
+docker-compose up
 
 
