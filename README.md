@@ -33,8 +33,11 @@ The admin interface for trawler.
 install 
 
 virtualenv news_trawler
+
 cd news_trawler
+
 source bin/activate
+
 pip install -r requirements.txt --find-links file:///$PWD/pips
 
 
